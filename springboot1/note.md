@@ -1,4 +1,4 @@
-#一、springboot快速入门
+# 一、springboot快速入门
 ## 1、创建项目
 使用ieda：
 file-new-project(modele)-spring iniliatizr-default url
@@ -11,7 +11,7 @@ pom文件增加依赖
     <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
 ```
-##3、编写HelloWorld
+## 3、编写HelloWorld
 ``` java
 @RestController
 public class HelloController {
@@ -24,7 +24,7 @@ public class HelloController {
 }
 ```
 启动主程序，打开浏览器访问http://localhost:8080/hello，可以看到页面输出Hello World
-##4、编写单元测试用例
+## 4、编写单元测试用例
 ``` java
 package com.zstax.demo.test;
 

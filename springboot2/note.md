@@ -1,14 +1,14 @@
-#二、springboot开发web应用
-##1、静态资源访问
-###默认配置
+# 二、springboot开发web应用
+## 1、静态资源访问
+### 默认配置
 - /static
 - /public
 - /resources
 - /META-INF/resources
-##2、渲染页面
-###模板引擎
+## 2、渲染页面
+### 模板引擎
 模板默认配置路径`src/main/resources/templates`
-####1、thymeleaf
+#### 1、thymeleaf
 1.1添加依赖
 ```xml
 <dependency>
@@ -44,7 +44,7 @@ public class HelloController {
 </body>
 </html>
 ```
-####2、thymeleaf参数配置
+#### 2、thymeleaf参数配置
 ```properties
 # Enable template caching.
 spring.thymeleaf.cache=true 
