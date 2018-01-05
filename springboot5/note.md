@@ -1,0 +1,209 @@
+# 五、springboot整合mybatis
+## 1、初始化
+### 1 spring initializr勾选mybatis mysql jdbc web
+### 2 添加pom依赖
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>1.3.1</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.5</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper -->
+<dependency>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper</artifactId>
+    <version>5.1.2</version>
+</dependency>
+```
+### 3 使用application.yml配置文件
+```yaml
+server:
+  port: 8080
+
+spring:
+    datasource:
+        name: test
+        url: jdbc:mysql://127.0.0.1:3306/springboot
+        username: root
+        password: 123456
+        #
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 'x'
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: com.zstax.demo.bean
+
+#pagehelper
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+```
+## 2、使用mybatis generator 自动生成代码
+### 1 pom中使用mybatis自动生成插件
+```xml
+<!-- mybatis generator 自动生成代码插件 -->
+    <plugin>
+        <groupId>org.mybatis.generator</groupId>
+        <artifactId>mybatis-generator-maven-plugin</artifactId>
+        <version>1.3.9zs</version>
+        <configuration>
+            <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
+            <jdbcURL>jdbc:mysql://localhost:3306/springboot</jdbcURL>
+            <jdbcUserId>root</jdbcUserId>
+            <jdbcPassword>123456</jdbcPassword>
+            <classPathEntry>E:\Repository\MavenLocalRep\mysql\mysql-connector-java\5.1.44\mysql-connector-java-5.1.44.jar</classPathEntry>
+            <verbose>true</verbose>
+            <overwrite>true</overwrite>
+        </configuration>
+    </plugin>
+```
+### 2 resources目录下使用generatorConfig.xml文件
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "classpath:org/mybatis/generator/config/xml/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+    <!--
+      <properties resource="classpath:conf/jdbc.properties"/>
+    -->
+
+    <!--  <classPathEntry location="D:\j2ee\maven\repository\com\oracle\ojdbc6\16\ojdbc6-16.jar"/>-->
+
+    <context id="zsCoreGen" defaultModelType="flat" targetRuntime="ZstimesMyBatis3">
+        <!-- 自动识别数据库关键字，默认false，如果设置为true，根据SqlReservedWords中定义的关键字列表；
+            一般保留默认值，遇到数据库关键字（Java关键字），使用columnOverride覆盖
+         -->
+        <property name="autoDelimitKeywords" value="false"/>
+        <!-- 生成的Java文件的编码 -->
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <!-- 格式化java代码 -->
+        <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
+        <!-- 格式化XML代码 -->
+        <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
+
+        <!-- beginningDelimiter和endingDelimiter：指明数据库的用于标记数据库对象名的符号，比如ORACLE就是双引号，MYSQL默认是`反引号； -->
+        <!--<property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>-->
+
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+        <!--<plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+        <plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
+        <plugin type="org.mybatis.generator.plugins.FluentBuilderMethodsPlugin" />-->
+
+        <!-- <commentGenerator>
+           <property name="suppressDate" value="true"/>
+           <property name="suppressAllComments" value="true"/>
+         </commentGenerator>-->
+
+        <!--<connectionFactory type="DEFAULT">
+          <property name="driverClass" value="${database.driver}"/>
+          <property name="connectionURL" value="${database.url}"/>
+          <property name="userId" value="${database.username}"/>
+          <property name="password" value="${database.password}"/>
+        </connectionFactory>-->
+
+        <javaModelGenerator targetPackage="com.zstax.demo.bean" targetProject="src/main/java">
+            <!--  for MyBatis3/MyBatis3Simple
+                  自动为每一个生成的类创建一个构造方法，构造方法包含了所有的field；而不是使用setter；
+               -->
+            <property name="constructorBased" value="false"/>
+            <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="false" />
+            <!-- for MyBatis3 / MyBatis3Simple
+                  是否创建一个不可变的类，如果为true，
+                  那么MBG会创建一个没有setter方法的类，取而代之的是类似constructorBased的类
+            -->
+            <property name="immutable" value="false"/>
+            <!-- 设置一个根对象，
+                  如果设置了这个根对象，那么生成的keyClass或者recordClass会继承这个类；在Table的rootClass属性中可以覆盖该选项
+                  注意：如果在key class或者record class中有root class相同的属性，MBG就不会重新生成这些属性了，包括：
+                      1，属性名相同，类型相同，有相同的getter/setter方法；
+               -->
+            <property name="rootClass" value="java.lang.Object"/>
+            <!-- 设置是否在getter方法中，对String类型字段调用trim()方法 -->
+            <property name="trimStrings" value="false" />
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="mapping"  targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.zstax.demo.dao"  targetProject="src/main/java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+
+        <table tableName="t_user" domainObjectName="User" enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+        </table>
+
+    </context>
+
+</generatorConfiguration>
+```
+### 3 idea中配置maven命令：mybatis-generator:generate
+### 4 启动类添加包扫描
+```java
+package com.zstax.demo;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.Properties;
+
+@SpringBootApplication
+@MapperScan("com.zstax.demo.dao")
+public class Springboot5Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Springboot5Application.class, args);
+    }
+}
+```
+## 3、运行与测试
